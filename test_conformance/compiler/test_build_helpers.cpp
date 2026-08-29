@@ -1146,25 +1146,25 @@ REGISTER_TEST(get_program_source_from_binary)
     }
 
     std::vector<unsigned char> binary(binary_size);
-    unsigned char* binary_ptr = binary.data();
+    unsigned char *binary_ptr = binary.data();
 
-    error = clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                             sizeof(binary_ptr), &binary_ptr, nullptr);
+    error = clGetProgramInfo(program, CL_PROGRAM_BINARIES, sizeof(binary_ptr),
+                             &binary_ptr, nullptr);
     test_error(error, "clGetProgramInfo for binary failed");
 
-    const unsigned char* binary_data = binary.data();
+    const unsigned char *binary_data = binary.data();
     cl_int binary_status = CL_SUCCESS;
 
-    program_from_binary = clCreateProgramWithBinary(
-        context, 1, &device, &binary_size, &binary_data, &binary_status,
-        &error);
+    program_from_binary =
+        clCreateProgramWithBinary(context, 1, &device, &binary_size,
+                                  &binary_data, &binary_status, &error);
     test_error(error, "clCreateProgramWithBinary failed");
     test_assert_error(binary_status == CL_SUCCESS,
                       "Binary status is not CL_SUCCESS");
 
     size_t src_size = 0;
-    error = clGetProgramInfo(program_from_binary, CL_PROGRAM_SOURCE,
-                             0, nullptr, &src_size);
+    error = clGetProgramInfo(program_from_binary, CL_PROGRAM_SOURCE, 0, nullptr,
+                             &src_size);
     test_error(error, "clGetProgramInfo for source size failed");
 
     if (src_size == 0)
@@ -1175,8 +1175,8 @@ REGISTER_TEST(get_program_source_from_binary)
 
     std::vector<char> src(src_size, static_cast<char>(0x7f));
 
-    error = clGetProgramInfo(program_from_binary, CL_PROGRAM_SOURCE,
-                             src_size, src.data(), nullptr);
+    error = clGetProgramInfo(program_from_binary, CL_PROGRAM_SOURCE, src_size,
+                             src.data(), nullptr);
     test_error(error, "clGetProgramInfo for source failed");
 
     if (src.back() != '\0')
@@ -1187,8 +1187,8 @@ REGISTER_TEST(get_program_source_from_binary)
 
     if (src_size != 1
         && (src_size != strlen(sample_kernel_code_single_line[0]) + 1
-            || memcmp(src.data(), sample_kernel_code_single_line[0],
-                      src_size) != 0))
+            || memcmp(src.data(), sample_kernel_code_single_line[0], src_size)
+                != 0))
     {
         log_error("CL_PROGRAM_SOURCE returned unexpected content\n");
         return TEST_FAIL;
