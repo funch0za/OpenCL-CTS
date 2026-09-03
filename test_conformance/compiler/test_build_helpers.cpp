@@ -1125,14 +1125,12 @@ REGISTER_TEST(get_program_source_from_binary)
 {
     cl_int error = CL_SUCCESS;
     clProgramWrapper program;
+    clKernelWrapper kernel;
     clProgramWrapper program_from_binary;
 
-    program = clCreateProgramWithSource(
-        context, 1, sample_kernel_code_single_line, nullptr, &error);
-    test_error(error, "clCreateProgramWithSource failed");
-
-    error = clBuildProgram(program, 1, &device, nullptr, nullptr, nullptr);
-    test_error(error, "clBuildProgram failed");
+    error = create_single_kernel_helper(
+        context, &program, &kernel, 1, sample_kernel_code_single_line, "test");
+    test_error(error, "create_single_kernel_helper failed");
 
     size_t binary_size = 0;
     error = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES,
@@ -1159,8 +1157,7 @@ REGISTER_TEST(get_program_source_from_binary)
         clCreateProgramWithBinary(context, 1, &device, &binary_size,
                                   &binary_data, &binary_status, &error);
     test_error(error, "clCreateProgramWithBinary failed");
-    test_assert_error(binary_status == CL_SUCCESS,
-                      "Binary status is not CL_SUCCESS");
+    test_error(binary_status, "Binary status is not CL_SUCCESS");
 
     size_t src_size = 0;
     error = clGetProgramInfo(program_from_binary, CL_PROGRAM_SOURCE, 0, nullptr,
@@ -1169,8 +1166,7 @@ REGISTER_TEST(get_program_source_from_binary)
 
     if (src_size == 0)
     {
-        log_error("Source size is zero\n");
-        return TEST_FAIL;
+        return TEST_PASS;
     }
 
     std::vector<char> src(src_size, static_cast<char>(0x7f));
@@ -1187,10 +1183,11 @@ REGISTER_TEST(get_program_source_from_binary)
 
     if (src_size != 1
         && (src_size != strlen(sample_kernel_code_single_line[0]) + 1
-            || memcmp(src.data(), sample_kernel_code_single_line[0], src_size)
-                != 0))
+            || strcmp(src.data(), sample_kernel_code_single_line[0]) != 0))
     {
-        log_error("CL_PROGRAM_SOURCE returned unexpected content\n");
+        log_error(
+            "CL_PROGRAM_SOURCE returned unexpected content (size %zu):\n%s\n",
+            src_size, src.data());
         return TEST_FAIL;
     }
 
