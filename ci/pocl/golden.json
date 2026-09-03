@@ -247,6 +247,8 @@
         }
     },
     "test_compiler": {
-        "get_program_source_from_binary": "pass"
+        "": {
+            "get_program_source_from_binary": "pass"
+        }
     }
 }
